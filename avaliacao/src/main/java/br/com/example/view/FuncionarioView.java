@@ -1,155 +1,338 @@
 package br.com.example.view;
 
 import java.util.ArrayList;
+
 import javax.swing.JOptionPane;
-import br.com.example.controle.FuncionarioControle;
+
+import br.com.example.controle.FuncionarioController;
 import br.com.example.modelo.Funcionario;
 import br.com.example.modelo.Gerente;
 import br.com.example.modelo.Operador;
 
 public class FuncionarioView {
 
-    private FuncionarioControle controle;
+    private FuncionarioController controle;
 
     public FuncionarioView() {
-        controle = new FuncionarioControle();
+        controle = new FuncionarioController();
     }
 
     public void menu() {
-        int opcao;
-        do {
-            String menu = """
-                    ===== SISTEMA DE FUNCIONÁRIOS =====
 
-                    1. Cadastrar Gerente
-                    2. Cadastrar Operador
-                    3. Listar Funcionários
-                    4. Alterar Funcionário
-                    5. Remover Funcionário
-                    6. Sair
+        int opcao;
+
+        do {
+
+            String menu = """
+                    ===== SISTEMA DE GERENCIAMENTO DE FUNCIONÁRIOS =====
+
+                    1. Cadastrar gerente
+                    2. Cadastrar operador
+                    3. Listar funcionários
+                    4. Pesquisar funcionário
+                    5. Alterar funcionário
+                    6. Excluir funcionário
+                    7. Sair
 
                     Escolha uma opção:
                     """;
 
             String entrada = JOptionPane.showInputDialog(menu);
-            if (entrada == null) break;
+
+            if (entrada == null) {
+                break;
+            }
 
             try {
+
                 opcao = Integer.parseInt(entrada);
+
                 switch (opcao) {
-                    case 1: cadastrar(true); break;
-                    case 2: cadastrar(false); break;
-                    case 3: listar(); break;
-                    case 4: alterar(); break;
-                    case 5: remover(); break;
-                    case 6: JOptionPane.showMessageDialog(null, "Sistema encerrado!"); break;
-                    default: JOptionPane.showMessageDialog(null, "Opção inválida!");
+
+                    case 1:
+                        cadastrarGerente();
+                        break;
+
+                    case 2:
+                        cadastrarOperador();
+                        break;
+
+                    case 3:
+                        listar();
+                        break;
+
+                    case 4:
+                        pesquisar();
+                        break;
+
+                    case 5:
+                        alterar();
+                        break;
+
+                    case 6:
+                        remover();
+                        break;
+
+                    case 7:
+                        JOptionPane.showMessageDialog(null, "Sistema encerrado!");
+                        break;
+
+                    default:
+                        JOptionPane.showMessageDialog(null, "Opção inválida!");
                 }
+
             } catch (NumberFormatException e) {
+
                 JOptionPane.showMessageDialog(null, "Digite uma opção válida!");
                 opcao = 0;
             }
-        } while (opcao != 6);
+
+        } while (opcao != 7);
     }
 
-    public void cadastrar(boolean isGerente) {
+    public void cadastrarGerente() {
+
         try {
-            int matricula = Integer.parseInt(JOptionPane.showInputDialog("Digite a matrícula:"));
+
+            String entradaMatricula = JOptionPane.showInputDialog("Digite a matrícula:");
+
+            if (entradaMatricula == null) return;
+
             String nome = JOptionPane.showInputDialog("Digite o nome:");
-            if (nome == null || nome.trim().isEmpty()) return;
-            
-            int idade = Integer.parseInt(JOptionPane.showInputDialog("Digite a idade:"));
-            if (idade <= 0) {
-                JOptionPane.showMessageDialog(null, "Idade deve ser maior que zero!");
-                return;
+
+            if (nome == null) return;
+
+            String entradaIdade = JOptionPane.showInputDialog("Digite a idade:");
+
+            if (entradaIdade == null) return;
+
+            String departamento = JOptionPane.showInputDialog("Digite o departamento:");
+
+            if (departamento == null) return;
+
+            int matricula = Integer.parseInt(entradaMatricula.trim());
+            int idade = Integer.parseInt(entradaIdade.trim());
+
+            if (controle.cadastrarGerente(matricula, nome, idade, departamento)) {
+
+                JOptionPane.showMessageDialog(null, "Gerente cadastrado com sucesso!");
+
+            } else {
+
+                JOptionPane.showMessageDialog(null, "Erro ao cadastrar gerente! Verifique os dados e a matrícula.");
             }
 
-            String mensagem;
-            if (isGerente) {
-                String depto = JOptionPane.showInputDialog("Digite o departamento:");
-                mensagem = controle.cadastrarGerente(matricula, nome, idade, depto);
-            } else {
-                String funcao = JOptionPane.showInputDialog("Digite a função:");
-                mensagem = controle.cadastrarOperador(matricula, nome, idade, funcao);
-            }
-            JOptionPane.showMessageDialog(null, mensagem);
-            
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Digite valores numéricos válidos para matrícula e idade!");
+
+            JOptionPane.showMessageDialog(null, "Digite valores numéricos válidos!");
+        }
+    }
+
+    public void cadastrarOperador() {
+
+        try {
+
+            String entradaMatricula = JOptionPane.showInputDialog("Digite a matrícula:");
+
+            if (entradaMatricula == null) return;
+
+            String nome = JOptionPane.showInputDialog("Digite o nome:");
+
+            if (nome == null) return;
+
+            String entradaIdade = JOptionPane.showInputDialog("Digite a idade:");
+
+            if (entradaIdade == null) return;
+
+            String funcao = JOptionPane.showInputDialog("Digite a função:");
+
+            if (funcao == null) return;
+
+            int matricula = Integer.parseInt(entradaMatricula.trim());
+            int idade = Integer.parseInt(entradaIdade.trim());
+
+            if (controle.cadastrarOperador(matricula, nome, idade, funcao)) {
+
+                JOptionPane.showMessageDialog(null, "Operador cadastrado com sucesso!");
+
+            } else {
+
+                JOptionPane.showMessageDialog(null, "Erro ao cadastrar operador! Verifique os dados e a matrícula.");
+            }
+
+        } catch (NumberFormatException e) {
+
+            JOptionPane.showMessageDialog(null, "Digite valores numéricos válidos!");
         }
     }
 
     public void listar() {
+
         ArrayList<Funcionario> funcionarios = controle.listar();
+
         if (funcionarios.isEmpty()) {
+
             JOptionPane.showMessageDialog(null, "Nenhum funcionário cadastrado!");
             return;
         }
 
-        StringBuilder mensagem = new StringBuilder("===== FUNCIONÁRIOS CADASTRADOS =====\n\n");
-        for (Funcionario f : funcionarios) {
-            mensagem.append("Matrícula: ").append(f.getMatricula()).append("\n");
-            mensagem.append("Nome: ").append(f.getNome()).append("\n");
-            mensagem.append("Idade: ").append(f.getIdade()).append("\n");
-            mensagem.append("Específico: ").append(f.getDadosEspecificos()).append("\n");
+        StringBuilder mensagem = new StringBuilder();
+
+        mensagem.append("===== FUNCIONÁRIOS CADASTRADOS =====\n\n");
+
+        for (Funcionario funcionario : funcionarios) {
+
+            mensagem.append("Matrícula: ").append(funcionario.getMatricula()).append("\n");
+            mensagem.append("Nome: ").append(funcionario.getNome()).append("\n");
+            mensagem.append("Idade: ").append(funcionario.getIdade()).append("\n");
+            mensagem.append("Tipo: ").append(funcionario.getTipo()).append("\n");
+            mensagem.append(funcionario.getNomeInformacao()).append(": ")
+                    .append(funcionario.getInformacao()).append("\n");
+
             mensagem.append("------------------------------------\n");
         }
+
         JOptionPane.showMessageDialog(null, mensagem.toString());
     }
 
-    public void alterar() {
-        try {
-            int matricula = Integer.parseInt(JOptionPane.showInputDialog("Matrícula do funcionário a alterar:"));
-            Funcionario f = controle.buscar(matricula);
+    public void pesquisar() {
 
-            if (f == null) {
+        try {
+
+            String entrada = JOptionPane.showInputDialog("Digite a matrícula do funcionário:");
+
+            if (entrada == null) return;
+
+            int matricula = Integer.parseInt(entrada.trim());
+
+            Funcionario funcionario = controle.buscar(matricula);
+
+            if (funcionario == null) {
+
                 JOptionPane.showMessageDialog(null, "Funcionário não encontrado!");
                 return;
             }
 
-            String nome = JOptionPane.showInputDialog("Novo nome:", f.getNome());
-            int idade = Integer.parseInt(JOptionPane.showInputDialog("Nova idade:", f.getIdade()));
+            String mensagem = "Matrícula: " + funcionario.getMatricula()
+                    + "\nNome: " + funcionario.getNome()
+                    + "\nIdade: " + funcionario.getIdade()
+                    + "\nTipo: " + funcionario.getTipo()
+                    + "\n" + funcionario.getNomeInformacao()
+                    + ": " + funcionario.getInformacao();
 
-            f.setNome(nome);
-            f.setIdade(idade);
-
-            if (f instanceof Gerente) {
-                String depto = JOptionPane.showInputDialog("Novo departamento:", ((Gerente) f).getDepartamento());
-                ((Gerente) f).setDepartamento(depto);
-            } else if (f instanceof Operador) {
-                String funcao = JOptionPane.showInputDialog("Nova função:", ((Operador) f).getFuncao());
-                ((Operador) f).setFuncao(funcao);
-            }
-
-            JOptionPane.showMessageDialog(null, controle.alterar(f));
+            JOptionPane.showMessageDialog(null, mensagem);
 
         } catch (NumberFormatException e) {
+
+            JOptionPane.showMessageDialog(null, "Digite uma matrícula numérica válida!");
+        }
+    }
+
+    public void alterar() {
+
+        try {
+
+            String entrada = JOptionPane.showInputDialog("Digite a matrícula do funcionário:");
+
+            if (entrada == null) return;
+
+            int matricula = Integer.parseInt(entrada.trim());
+
+            Funcionario funcionario = controle.buscar(matricula);
+
+            if (funcionario == null) {
+
+                JOptionPane.showMessageDialog(null, "Funcionário não encontrado!");
+                return;
+            }
+
+            String nome = JOptionPane.showInputDialog(
+                    null, "Digite o novo nome:", funcionario.getNome()
+            );
+
+            if (nome == null) return;
+
+            String entradaIdade = JOptionPane.showInputDialog(
+                    null, "Digite a nova idade:", funcionario.getIdade()
+            );
+
+            if (entradaIdade == null) return;
+
+            String informacao = JOptionPane.showInputDialog(
+                    null,
+                    "Digite o novo " + funcionario.getNomeInformacao().toLowerCase() + ":",
+                    funcionario.getInformacao()
+            );
+
+            if (informacao == null) return;
+
+            funcionario.setNome(nome.trim());
+
+            funcionario.setIdade(Integer.parseInt(entradaIdade.trim()));
+
+            funcionario.setInformacao(informacao.trim());
+
+            if (controle.alterar(funcionario)) {
+
+                JOptionPane.showMessageDialog(null, "Funcionário alterado com sucesso!");
+
+            } else {
+
+                JOptionPane.showMessageDialog(null, "Erro ao alterar funcionário! Verifique os dados.");
+            }
+
+        } catch (NumberFormatException e) {
+
             JOptionPane.showMessageDialog(null, "Digite valores numéricos válidos!");
         }
     }
 
     public void remover() {
-        try {
-            int matricula = Integer.parseInt(JOptionPane.showInputDialog("Digite a matrícula para remover:"));
-            Funcionario f = controle.buscar(matricula);
 
-            if (f == null) {
+        try {
+
+            String entrada = JOptionPane.showInputDialog("Digite a matrícula do funcionário:");
+
+            if (entrada == null) return;
+
+            int matricula = Integer.parseInt(entrada.trim());
+
+            Funcionario funcionario = controle.buscar(matricula);
+
+            if (funcionario == null) {
+
                 JOptionPane.showMessageDialog(null, "Funcionário não encontrado!");
                 return;
             }
 
-            int confirmacao = JOptionPane.showConfirmDialog(null, 
-                "Deseja remover " + f.getNome() + "?", "Confirmar", JOptionPane.YES_NO_OPTION);
+            String mensagem = "Deseja realmente excluir este funcionário?\n\n"
+                    + "Matrícula: " + funcionario.getMatricula()
+                    + "\nNome: " + funcionario.getNome()
+                    + "\nIdade: " + funcionario.getIdade()
+                    + "\nTipo: " + funcionario.getTipo();
+
+            int confirmacao = JOptionPane.showConfirmDialog(
+                    null,
+                    mensagem,
+                    "Confirmar exclusão",
+                    JOptionPane.YES_NO_OPTION
+            );
 
             if (confirmacao == JOptionPane.YES_OPTION) {
+
                 if (controle.remover(matricula)) {
-                    JOptionPane.showMessageDialog(null, "Removido com sucesso!");
+
+                    JOptionPane.showMessageDialog(null, "Funcionário excluído com sucesso!");
+
                 } else {
-                    JOptionPane.showMessageDialog(null, "Erro ao remover!");
+
+                    JOptionPane.showMessageDialog(null, "Erro ao excluir funcionário!");
                 }
             }
+
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Digite uma matrícula válida!");
+
+            JOptionPane.showMessageDialog(null, "Digite uma matrícula numérica válida!");
         }
     }
 }
