@@ -1,20 +1,20 @@
-package controller;
+package controle;
 
 import dao.FuncionarioDao;
-import model.Funcionario;
-import model.Gerente;
-import model.Operador;
+import modelo.Funcionario;
+import modelo.Gerente;
+import modelo.Operador;
 
 import java.sql.SQLException;
 import java.util.List;
 
 
-public class FuncionarioController {
+public class FuncionarioControle {
 
-    private final FuncionarioDAO dao;
+    private final FuncionarioDao dao;
 
-    public FuncionarioController() {
-        this.dao = new FuncionarioDAO();
+    public FuncionarioControle() {
+        this.dao = new FuncionarioDao();
     }
 
     // ---------------------------------------------------------------
