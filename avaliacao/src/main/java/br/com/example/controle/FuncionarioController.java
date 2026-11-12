@@ -1,6 +1,6 @@
 package controller;
 
-import dao.FuncionarioDAO;
+import dao.FuncionarioDao;
 import model.Funcionario;
 import model.Gerente;
 import model.Operador;
